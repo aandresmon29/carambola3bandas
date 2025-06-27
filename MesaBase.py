@@ -1,79 +1,99 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-# Nuevas dimensiones reales en cm
-height = 302.8       # Largo total de la mesa (área de juego)
-width = 152.4        # Ancho total de la mesa (área de juego)
-band_grosor = 5    # Grosor de la banda (margen externo)
+##Carom Table Parameters
+#This code defines a class for creating a carom table with specified dimensions and appearance.
+class CarambolaTable():
+    def __init__(self, height=302.8, width=152.4, band_thickness=5):
+        self.height = height
+        self.width = width 
+        self.band_thickness = band_thickness
+        self.fig, self.ax = plt.subplots()
+        self.setup_table()
 
-fig, ax = plt.subplots()
-fig.patch.set_facecolor('white')  # Fondo fuera de la banda
-ax.set_aspect('equal')
-ax.set_xlim(-band_grosor, height + band_grosor)
-ax.set_ylim(-band_grosor, width + band_grosor)
-ax.set_facecolor('black')  # Banda visible
+    #Table setup method
+    #This method sets up the table with the specified dimensions and appearance.
+    def setup_table(self):
+        #Set the figure size and aspect ratio
+        self.fig.patch.set_facecolor('white')
+        self.ax.set_aspect('equal')
+        self.ax.set_xlim(-self.band_thickness, self.height + self.band_thickness)
+        self.ax.set_ylim(-self.band_thickness, self.width + self.band_thickness)
 
-# Dibujar la superficie verde (área de juego)
-table_surface = patches.Rectangle(
-    (0, 0), height, width,
-    linewidth=0,
-    facecolor='lightgray'
-)
-ax.add_patch(table_surface)
+        #Band rectangle
+        band_rect = patches.Rectangle(
+            (-self.band_thickness, -self.band_thickness),
+            self.height + 2 * self.band_thickness,
+            self.width + 2 * self.band_thickness,
+            linewidth=0,
+            facecolor='black',
+            zorder=0
+        )
+        self.ax.add_patch(band_rect)
 
-# Borde exterior (opcional, decorativo)
-outer_border = patches.Rectangle(
-    (-band_grosor, -band_grosor),
-    height + 2 * band_grosor,
-    width + 2 * band_grosor,
-    linewidth=2,
-    edgecolor='black',
-    facecolor='none'
-)
-ax.add_patch(outer_border)
+        #Draw the table surface
+        table_surface = patches.Rectangle(
+            (0, 0), self.height, self.width,
+            linewidth=0,
+            facecolor='lightgray',
+            zorder=1
+        )
+        self.ax.add_patch(table_surface)
+        
+        #Draw the bands
+        outer_border = patches.Rectangle(
+            (-self.band_thickness, -self.band_thickness),
+            self.height + 2 * self.band_thickness,
+            self.width + 2 * self.band_thickness,
+            linewidth=2,
+            edgecolor='black',
+            facecolor='none',
+            zorder=2
+        )
+        self.ax.add_patch(outer_border)
 
-# Dibujar diamantes numerados
-def draw_diamonds_with_numbers():
-    # Lado inferior (horizontal de 0 a 8)
-    for i in range(9):
-        x = i * height / 8
-        ax.plot(x, 0 - band_grosor / 2, 'wo', markersize=4)
-        ax.text(x, -5, f"{i}", color='darkgreen', ha='center', va='top', fontsize=8)
+    #Draw diamonds with numbers on the carom table
+    def draw_diamonds_with_numbers(self):
+        #Bottom side (horizontal from 0 to 8)
+        for i in range(9):
+            x = i * self.height / 8
+            self.ax.plot(x, 0 - self.band_thickness / 2, 'wo', markersize=4)
+            self.ax.text(x, -5, f"{i}", color='darkgreen', ha='center', va='top', fontsize=8)
 
-    # Lado izquierdo (vertical de 0 a 4)
-    for j in range(5):
-        y = j * width / 4
-        ax.plot(0 - band_grosor / 2, y, 'wo', markersize=4)
-        ax.text(-5, y, f"{j}", color='darkgreen', ha='right', va='center', fontsize=8)
+        # Left side (vertical from 0 to 4)
+        for j in range(5):
+            y = j * self.width / 4
+            self.ax.plot(0 - self.band_thickness / 2, y, 'wo', markersize=4)
+            self.ax.text(-5, y, f"{j}", color='darkgreen', ha='right', va='center', fontsize=8)
 
-    # Lado superior
-    for i in range(9):
-        x = i * height / 8
-        ax.plot(x, width + band_grosor / 2, 'wo', markersize=4)
-        ax.text(x, width + 5, f"{i}", color='darkgreen', ha='center', va='bottom', fontsize=8)
+        # Top side
+        for i in range(9):
+            x = i * self.height / 8
+            self.ax.plot(x, self.width + self.band_thickness / 2, 'wo', markersize=4)
+            self.ax.text(x, self.width + 5, f"{i}", color='darkgreen', ha='center', va='bottom', fontsize=8)
 
-    # Lado derecho
-    for j in range(5):
-        y = j * width / 4
-        ax.plot(height + band_grosor / 2, y, 'wo', markersize=4)
-        ax.text(height + 5, y, f"{j}", color='darkgreen', ha='left', va='center', fontsize=8)
+        # Right side
+        for j in range(5):
+            y = j * self.width / 4
+            self.ax.plot(self.height + self.band_thickness / 2, y, 'wo', markersize=4)
+            self.ax.text(self.height + 5, y, f"{j}", color='darkgreen', ha='left', va='center', fontsize=8)
 
+    def draw_balls(self, white_ball, red_ball, yellow_ball):
+        # Draw the white ball
+        self.ax.add_patch(patches.Circle(white_ball, 5, color='white', ec='black', zorder=3))
+        # Draw the red ball
+        self.ax.add_patch(patches.Circle(red_ball, 5, color='red', ec='black', zorder=3))
+        # Draw the yellow ball
+        self.ax.add_patch(patches.Circle(yellow_ball, 5, color='yellow', ec='black', zorder=3))
 
-draw_diamonds_with_numbers()
+    #Draw the carom table with balls and diamonds
+    def show_table(self, white_ball=(50, 50), red_ball=(100, 100), yellow_ball=(150, 150)):
+        self.draw_diamonds_with_numbers()
+        self.draw_balls(white_ball, red_ball, yellow_ball)
+        plt.axis('off')
+        plt.show()
 
-# Dibujar bolas
-def draw_ball(pos, color):
-    ball = plt.Circle(pos, 5, color=color, ec='black', zorder=3)
-    ax.add_patch(ball)
-
-draw_ball((30, 70), 'white')
-draw_ball((220, 100), 'red')
-draw_ball((220, 40), 'yellow')
-
-# Estética general
-plt.title('Mesa 3 Bandas', color='green', pad=20, fontsize=16)
-ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
-for spine in ax.spines.values():
-    spine.set_visible(False)
-
-plt.show()
+# Example usage
+if __name__ == "__main__":
+    table = CarambolaTable()
+    table.show_table(white_ball=(50, 50), red_ball=(100, 100), yellow_ball=(150, 150))
